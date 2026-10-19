@@ -1,0 +1,54 @@
+{
+  "env": {
+    "CLAUDE_CODE_AUTO_COMPACT_WINDOW": "400000",
+    "CLAUDE_CODE_STOP_HOOK_BLOCK_CAP": "3",
+    "CLAUDE_CODE_SUBAGENT_PROMPT_CACHE_TTL": "1h"
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"/absolute/path/to/claude-code-long-sessions/hooks/memory_hook.py\" after-tool",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"/absolute/path/to/claude-code-long-sessions/hooks/memory_hook.py\" pre-compact",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"/absolute/path/to/claude-code-long-sessions/hooks/memory_hook.py\" post-summary",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"/absolute/path/to/claude-code-long-sessions/hooks/memory_hook.py\" after-compact",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}

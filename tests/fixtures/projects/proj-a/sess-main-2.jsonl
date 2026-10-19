@@ -1,0 +1,2 @@
+{"type":"user","timestamp":"2026-02-01T09:00:00Z","message":{"role":"user","content":"Summarize the README"}}
+{"type":"assistant","timestamp":"2026-02-01T09:00:05Z","message":{"id":"n1","model":"claude-sonnet-5-5","content":[{"type":"text","text":"Here is the summary."}],"usage":{"input_tokens":50,"output_tokens":100,"cache_creation_input_tokens":3000,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":3000,"ephemeral_1h_input_tokens":0}}}}
