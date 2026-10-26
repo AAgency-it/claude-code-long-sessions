@@ -1,6 +1,6 @@
 {"type":"user","timestamp":"2026-01-20T10:00:00Z","message":{"role":"user","content":"start"}}
 {"type":"assistant","timestamp":"2026-01-20T10:00:10Z","message":{"id":"a1","model":"claude-sonnet-5-5","content":[{"type":"tool_use","id":"t1","name":"Edit","input":{}}],"usage":{"input_tokens":1,"output_tokens":5,"cache_creation_input_tokens":0,"cache_read_input_tokens":0}}}
-{"type":"user","timestamp":"2026-01-20T10:00:20Z","message":{"role":"user","content":[{"type":"tool_result","tool_use_id":"t1","content":"File has not been read yet. Read it first before writing to it.","is_error":true}]}}
+{"type":"user","timestamp":"2026-01-20T10:00:20Z","message":{"role":"user","content":[{"type":"tool_result","tool_use_id":"t1","content":"<tool_use_error>File has not been read yet. Read it first before writing to it.</tool_use_error>","is_error":true}]}}
 {"type":"assistant","timestamp":"2026-01-20T10:01:00Z","message":{"id":"a2","model":"claude-sonnet-5-5","content":[{"type":"tool_use","id":"t2","name":"Bash","input":{}}],"usage":{"input_tokens":1,"output_tokens":5,"cache_creation_input_tokens":0,"cache_read_input_tokens":0}}}
 {"type":"user","timestamp":"2026-01-20T10:01:30Z","message":{"role":"user","content":[{"type":"tool_result","tool_use_id":"t2","content":"ok"}]}}
 {"type":"assistant","timestamp":"2026-01-20T10:02:00Z","message":{"id":"a3","model":"claude-sonnet-5-5","content":[{"type":"tool_use","id":"t3","name":"Bash","input":{}}],"usage":{"input_tokens":1,"output_tokens":5,"cache_creation_input_tokens":0,"cache_read_input_tokens":0}}}
@@ -10,9 +10,9 @@
 {"type":"user","timestamp":"2026-01-20T10:08:10Z","message":{"role":"user","content":[{"type":"tool_result","tool_use_id":"t4","content":"sent"},{"type":"tool_result","tool_use_id":"t5","content":"String to replace not found in file.","is_error":true}]}}
 {"type":"assistant","timestamp":"2026-01-20T10:08:40Z","message":{"id":"a5","model":"claude-sonnet-5-5","content":[{"type":"tool_use","id":"t6","name":"mcp__claude-in-chrome__navigate","input":{}}],"usage":{"input_tokens":1,"output_tokens":5,"cache_creation_input_tokens":0,"cache_read_input_tokens":0}}}
 {"type":"user","timestamp":"2026-01-20T10:08:50Z","message":{"role":"user","content":[{"type":"tool_result","tool_use_id":"t6","content":"Navigation failed after 30000 ms","is_error":true}]}}
-{"type":"system","subtype":"compact_boundary","timestamp":"2026-01-20T10:09:00Z","compactMetadata":{"trigger":"auto","preTokens":300000,"durationMs":120000}}
+{"type":"system","subtype":"compact_boundary","timestamp":"2026-01-20T10:09:00Z","compactMetadata":{"trigger":"auto","preTokens":300000,"postTokens":50000,"durationMs":120000}}
 {"type":"assistant","timestamp":"2026-01-20T10:09:30Z","message":{"id":"a6","model":"claude-sonnet-5-5","content":[{"type":"tool_use","id":"t7","name":"Edit","input":{}}],"usage":{"input_tokens":5,"output_tokens":5,"cache_creation_input_tokens":40000,"cache_read_input_tokens":4995}}}
-{"type":"user","timestamp":"2026-01-20T10:09:40Z","message":{"role":"user","content":[{"type":"tool_result","tool_use_id":"t7","content":"File has been modified since read, either by the user or by a linter.","is_error":true}]}}
+{"type":"user","timestamp":"2026-01-20T10:09:40Z","message":{"role":"user","content":[{"type":"tool_result","tool_use_id":"t7","content":"<tool_use_error>File has been modified since read, either by the user or by a linter.</tool_use_error>","is_error":true}]}}
 {"type":"assistant","timestamp":"2026-01-20T10:09:50Z","message":{"id":"a7","model":"claude-sonnet-5-5","content":[{"type":"tool_use","id":"t8","name":"Bash","input":{}}],"usage":{"input_tokens":1,"output_tokens":5,"cache_creation_input_tokens":0,"cache_read_input_tokens":0}}}
 {"type":"user","timestamp":"2026-01-20T10:10:00Z","message":{"role":"user","content":[{"type":"tool_result","tool_use_id":"t8","content":"PreToolUse:Bash hook error: blocked by a hook","is_error":true}]}}
 {"type":"assistant","timestamp":"2026-01-20T10:10:10Z","message":{"id":"a8","model":"claude-sonnet-5-5","content":[{"type":"tool_use","id":"t9","name":"Write","input":{}}],"usage":{"input_tokens":1,"output_tokens":5,"cache_creation_input_tokens":0,"cache_read_input_tokens":0}}}
@@ -20,6 +20,6 @@
 {"type":"assistant","timestamp":"2026-01-20T10:10:30Z","message":{"id":"a9","model":"claude-sonnet-5-5","content":[{"type":"tool_use","id":"t10","name":"Bash","input":{}}],"usage":{"input_tokens":1,"output_tokens":5,"cache_creation_input_tokens":0,"cache_read_input_tokens":0}}}
 {"type":"user","timestamp":"2026-01-20T10:10:40Z","message":{"role":"user","content":[{"type":"tool_result","tool_use_id":"t10","content":"Something odd happened","is_error":true}]}}
 {"type":"user","timestamp":"2026-01-20T11:30:40Z","message":{"role":"user","content":"next"}}
-{"type":"system","subtype":"compact_boundary","timestamp":"2026-01-20T11:30:45Z","compactMetadata":{"trigger":"auto","preTokens":350000,"durationMs":60000}}
+{"type":"system","subtype":"compact_boundary","timestamp":"2026-01-20T11:30:45Z","compactMetadata":{"trigger":"auto","preTokens":350000,"postTokens":54000,"durationMs":60000}}
 {"type":"assistant","timestamp":"2026-01-20T11:30:50Z","message":{"id":"a10","model":"claude-sonnet-5-5","content":[{"type":"text","text":"done"}],"usage":{"input_tokens":0,"output_tokens":5,"cache_creation_input_tokens":20000,"cache_read_input_tokens":40000}}}
 {"type":"user","timestamp":"2026-01-20T11:31:00Z","message":{"role":"user","content":"thanks"}}

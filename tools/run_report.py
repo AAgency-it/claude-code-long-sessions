@@ -84,9 +84,17 @@ def median(values):
 
 # --- tool errors ---
 
+# A tag such as <tool_use_error>: Claude Code wraps the text of many tool errors in it.
+TAG = re.compile(r'</?[A-Za-z][\w:-]*(?:\s[^<>]*)?/?>')
+
+
+def strip_tags(text):
+    return TAG.sub('', text or '')
+
+
 def classify_error(text, tool):
     """The category of a failed tool call, from the text of the error and the name of the tool."""
-    s = (text or '').lstrip()
+    s = strip_tags(text).lstrip()
     low = s.lower()
     if s.startswith('File has not been read yet'):
         return EDIT_BEFORE_READ
@@ -113,7 +121,7 @@ PATH = re.compile(r"(?:[A-Za-z]:[\\/]|(?<![\w.~])(?:\.{1,2}/|~/|/))[^\s'\"`,;)]*
 def normalise_line(text):
     """The first non-empty line of an error, with paths as <path> and numbers as N, at most 90 characters."""
     line = ''
-    for candidate in (text or '').splitlines():
+    for candidate in strip_tags(text).splitlines():
         if candidate.strip():
             line = candidate.strip()
             break
@@ -200,7 +208,7 @@ def analyze_transcript(path, since=None, until=None):
                 if o.get('subtype') == 'compact_boundary':
                     meta = o.get('compactMetadata') or {}
                     compactions.append(dict(ts=t, trigger=meta.get('trigger'), pre=meta.get('preTokens'),
-                                            duration_ms=meta.get('durationMs'), restart_id=None, restart=None))
+                                            post=meta.get('postTokens'), duration_ms=meta.get('durationMs'), restart_id=None, restart=None))
                     waiting = compactions[-1]
                 continue
             if kind == 'assistant':
@@ -263,12 +271,15 @@ def active_and_gaps(stamps, active_gap, gap_report):
 
 def compaction_summary(compactions, turns):
     """How many compactions, at what size, with what context after them, and how long they took."""
-    pre = [c['pre'] for c in compactions if isinstance(c['pre'], (int, float))]
+    number = (int, float)
+    pre = [c['pre'] for c in compactions if isinstance(c['pre'], number)]
+    summary = [c['post'] for c in compactions if isinstance(c['post'], number)]
     restart = [c['restart'] for c in compactions if c['restart'] is not None]
-    ms = [c['duration_ms'] for c in compactions if isinstance(c['duration_ms'], (int, float))]
+    room = [c['pre'] - c['restart'] for c in compactions if isinstance(c['pre'], number) and c['restart'] is not None]
+    ms = [c['duration_ms'] for c in compactions if isinstance(c['duration_ms'], number)]
     n = len(compactions)
-    return dict(count=n, median_pre_tokens=median(pre), restart_contexts=restart,
-                median_restart_tokens=median(restart),
+    return dict(count=n, median_pre_tokens=median(pre), summary_median=median(summary),
+                restart_contexts=restart, restart_median=median(restart), room_median=median(room),
                 mean_minutes=sum(ms) / len(ms) / 60000 if ms else None, total_minutes=sum(ms) / 60000,
                 turns_per_compaction=turns / n if n else None)
 
@@ -338,28 +349,36 @@ def pct(x):
 
 def row(name, hours, active, turns, spt, c, e):
     return (f"{name[:38]:<38} {hours:>6.1f} {active:>8.1f} {turns:>6} {number(spt, 0):>7} {c['count']:>11} "
-            f"{kilo(c['median_pre_tokens']):>10} {kilo(c['median_restart_tokens']):>10} "
-            f"{c['total_minutes']:>14.1f} {e['total']:>11} {e['avoidable']:>9}")
+            f"{kilo(c['median_pre_tokens']):>10} {kilo(c['summary_median']):>8} {kilo(c['restart_median']):>10} "
+            f"{kilo(c['room_median']):>8} {c['total_minutes']:>14.1f} {e['total']:>11} {e['avoidable']:>9}")
+
+
+def short(stamp):
+    """An ISO timestamp as 2026-01-31T08:00Z (the transcripts are in UTC)."""
+    return stamp[:16] + 'Z'
 
 
 def print_report(rep, out=None):
     out = out or sys.stdout
     w = lambda s='': print(s, file=out)
     t = rep['totals']
-    w('Times and counts only. Active h = time between records that are at most '
+    w('Times and counts only; all times are in UTC. Active h = time between records that are at most '
       f"{rep['options']['active_gap_s']} s apart.")
     w()
     w(f"{'session':<38} {'hours':>6} {'active h':>8} {'turns':>6} {'s/turn':>7} {'compactions':>11} "
-      f"{'compact at':>10} {'restart at':>10} {'compaction min':>14} {'tool errors':>11} {'avoidable':>9}")
+      f"{'compact at':>10} {'summary':>8} {'restart at':>10} {'room':>8} {'compaction min':>14} "
+      f"{'tool errors':>11} {'avoidable':>9}")
     for sid, s in rep['sessions'].items():
         w(row(sid, s['hours'], s['active_hours'], s['turns'], s['seconds_per_turn'], s['compactions'], s['tool_errors']))
     w(row('TOTAL', t['sessions_hours'], t['sessions_active_hours'], t['turns'], t['seconds_per_turn'],
           t['compactions'], t['tool_errors']))
     w()
-    w('"compact at" is the median size of the context when it compacts, "restart at" the median context of the')
-    w('first reply after a compaction. TOTAL hours are the sum over the sessions.')
+    w('"compact at" is the median context size when it compacts. "summary" is the median size of the summary it')
+    w('writes. "restart at" is the median context of the first reply after it: the summary plus what Claude Code')
+    w('loads again (files read, skills, tools). "room" is the median of (compact at - restart at): the working')
+    w('space between a restart and the next compaction. TOTAL hours are the sum over the sessions.')
     win = t['window']
-    w(f"The run: {win['hours']:.1f} h from {win['first'][:16]} to {win['last'][:16]}, "
+    w(f"The run: {win['hours']:.1f} h from {short(win['first'])} to {short(win['last'])}, "
       f"{t['active_hours']:.1f} h with at least one session working.")
     c = t['compactions']
     parts = []
@@ -390,7 +409,7 @@ def print_report(rep, out=None):
     if gaps:
         w(f'Gaps of {limit:.0f} min or more ({len(gaps)}, longest first):')
         for sid, g in sorted(gaps, key=lambda x: -x[1]['minutes'])[:20]:
-            w(f"  {sid[:38]:<38} {g['start'][:16]} -> {g['end'][:16]}  {g['minutes']:>7.0f} min")
+            w(f"  {sid[:38]:<38} {short(g['start'])} -> {short(g['end'])}{g['minutes']:>7.0f} min")
         if len(gaps) > 20:
             w(f'  ... and {len(gaps) - 20} more (all of them are in the JSON written with --out)')
     else:

@@ -38,6 +38,13 @@ def run_main(*args):
     return code, buf.getvalue()
 
 
+def run_main_in(projects_dir, *args):
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        code = rr.main(['--projects-dir', projects_dir, *args])
+    return code, buf.getvalue()
+
+
 def run_json(*args):
     with tempfile.TemporaryDirectory() as d:
         out = os.path.join(d, 'report.json')
@@ -101,7 +108,26 @@ class Compactions(unittest.TestCase):
 
     def test_restart_context_is_the_first_reply_after_the_boundary(self):
         self.assertEqual(self.c['restart_contexts'], [45000, 60000])
-        self.assertEqual(self.c['median_restart_tokens'], 52500)
+        self.assertEqual(self.c['restart_median'], 52500)
+
+    def test_summary_size_is_the_median_of_post_tokens(self):
+        self.assertEqual(self.c['summary_median'], 52000)
+
+    def test_room_is_what_is_left_between_a_restart_and_the_next_compaction(self):
+        # (300000 - 45000) and (350000 - 60000)
+        self.assertEqual(self.c['room_median'], 272500)
+
+    def test_without_post_tokens_the_summary_is_missing(self):
+        with tempfile.TemporaryDirectory() as d:
+            with open(os.path.join(d, 'sess-x.jsonl'), 'w', encoding='utf-8') as fh:
+                fh.write(json.dumps({'type': 'system', 'subtype': 'compact_boundary', 'timestamp': '2026-01-10T10:00:00Z',
+                                     'compactMetadata': {'trigger': 'auto', 'preTokens': 300000}}) + '\n')
+                fh.write(json.dumps({'type': 'assistant', 'timestamp': '2026-01-10T10:00:10Z',
+                                     'message': {'id': 'x1', 'content': [], 'usage': {'input_tokens': 100000}}}) + '\n')
+            _, text = run_main_in(d, '--json')
+        c = json.loads(text)['sessions']['sess-x']['compactions']
+        self.assertIsNone(c['summary_median'])
+        self.assertEqual(c['room_median'], 200000)
 
     def test_duration_is_reported_in_minutes(self):
         self.assertAlmostEqual(self.c['mean_minutes'], 1.5, places=3)
@@ -131,6 +157,11 @@ class ErrorClassification(unittest.TestCase):
             ('Navigation failed', 'mcp__claude-in-chrome__navigate', 'browser'),
             ('Timeout', 'mcp__some-browser__click', 'browser'),
             ('Something odd', 'Bash', 'other'),
+            ('<tool_use_error>File has not been read yet. Read it first.</tool_use_error>', 'Edit', 'edit before read'),
+            ('<tool_use_error>File has been modified since read, by a linter.</tool_use_error>', 'Edit',
+             'file changed since read'),
+            ('<tool_use_error>String to replace not found in file.</tool_use_error>', 'Edit',
+             'string to replace not found'),
         ]
         for text, tool, expected in cases:
             self.assertEqual(rr.classify_error(text, tool), expected, text)
@@ -164,6 +195,11 @@ class NormalisedLines(unittest.TestCase):
                          'Cannot open <path> b.txt line N')
         self.assertEqual(rr.normalise_line('see ~/notes/todo.md and ./x/y.py, ../z'), 'see <path> and <path>, <path>')
 
+    def test_tags_are_removed_before_the_line_is_taken(self):
+        self.assertEqual(rr.normalise_line('<tool_use_error>File has not been read yet.</tool_use_error>'),
+                         'File has not been read yet.')
+        self.assertEqual(rr.normalise_line('<tool_use_error>\nExit code 3\n</tool_use_error>'), 'Exit code N')
+
     def test_text_that_is_not_a_path_is_kept(self):
         self.assertEqual(rr.normalise_line('use and/or here'), 'use and/or here')
 
@@ -176,6 +212,8 @@ class NormalisedLines(unittest.TestCase):
         lines = {x['line']: x['count'] for x in rep['sessions'][ONE]['tool_errors']['top_lines']}
         self.assertEqual(lines['Exit code N'], 1)
         self.assertLessEqual(len(rep['sessions'][ONE]['tool_errors']['top_lines']), 10)
+        self.assertIn('File has not been read yet. Read it first before writing to it.', lines)
+        self.assertNotIn('tool_use_error', text)
         self.assertNotIn('Traceback', text)
         self.assertNotIn('/home/someone', json.dumps(rep))
 
@@ -287,14 +325,21 @@ class Table(unittest.TestCase):
     def test_columns_and_sections(self):
         _, text = run_main()
         header = next(l for l in text.splitlines() if l.startswith('session'))
-        for column in ('hours', 'active h', 'turns', 's/turn', 'compactions', 'compact at', 'restart at',
-                       'compaction min', 'tool errors', 'avoidable'):
+        for column in ('hours', 'active h', 'turns', 's/turn', 'compactions', 'compact at', 'summary', 'restart at',
+                       'room', 'compaction min', 'tool errors', 'avoidable'):
             self.assertIn(column, header)
         self.assertIn(ONE, text)
         self.assertIn('Tool errors', text)
         self.assertIn('Gaps of', text)
         self.assertIn('325k', text)                     # median preTokens
+        self.assertIn('52k', text)                      # median postTokens (the summary)
+        self.assertIn('273k', text)                     # median room
         self.assertIn('edit before read', text)
+
+    def test_times_are_marked_as_utc(self):
+        _, text = run_main()
+        self.assertIn('2026-01-20T10:10Z -> 2026-01-20T11:30Z', text)
+        self.assertIn('UTC', text)
 
     def test_no_money_in_the_output(self):
         _, text = run_main()
