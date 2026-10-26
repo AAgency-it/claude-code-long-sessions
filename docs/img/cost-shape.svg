@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="380" viewBox="0 0 1280 380" role="img" aria-labelledby="t d">
+  <title id="t">What a long session pays for depends on when it compacts</title>
+  <desc id="d">Share of the main-session cost at API list prices. Run 1, compacting near 967k tokens: cache reads 78 percent, everything else 22 percent. Run 2, compacting near 188k tokens: cache writes 49 percent, cache reads 38 percent, output 13 percent.</desc>
+  <style>
+    text { font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; }
+    .h { font-size: 24px; font-weight: 700; fill: #1F2328; }
+    .s { font-size: 16px; fill: #59636E; }
+    .row { font-size: 17px; font-weight: 600; fill: #1F2328; }
+    .rows { font-size: 14px; fill: #59636E; }
+    .in { font-size: 16px; font-weight: 600; fill: #FFFFFF; }
+    .ind { font-size: 16px; font-weight: 600; fill: #1F2328; }
+    .note { font-size: 15px; fill: #59636E; }
+  </style>
+  <rect x="0.5" y="0.5" width="1279" height="379" rx="14" fill="#FCFCFA" stroke="#D0D7DE"/>
+  <text class="h" x="48" y="62">What a long session pays for depends on when it compacts</text>
+  <text class="s" x="48" y="92">Share of the cost of the main sessions, at API list prices. Two of our own runs.</text>
+
+  <!-- Run 1 -->
+  <text class="row" x="48" y="158">Run 1 · 25 hours</text>
+  <text class="rows" x="48" y="180">compaction near 967k tokens</text>
+  <rect x="360" y="138" width="668" height="48" fill="#0F766E"/>
+  <rect x="1028" y="138" width="188" height="48" fill="#D0D7DE"/>
+  <text class="in" x="380" y="168">cache reads 78%</text>
+  <text class="ind" x="1046" y="168">everything else 22%</text>
+
+  <!-- Run 2 -->
+  <text class="row" x="48" y="252">Run 2 · 63 hours</text>
+  <text class="rows" x="48" y="274">compaction near 188k tokens</text>
+  <rect x="360" y="232" width="422" height="48" fill="#B45309"/>
+  <rect x="782" y="232" width="325" height="48" fill="#0F766E"/>
+  <rect x="1107" y="232" width="109" height="48" fill="#64748B"/>
+  <text class="in" x="380" y="262">cache writes 49%</text>
+  <text class="in" x="800" y="262">cache reads 38%</text>
+  <text class="in" x="1121" y="262">output 13%</text>
+
+  <text class="note" x="48" y="330">Compact too late and every call re-reads a huge context. Compact too early and every restart rewrites the cache</text>
+  <text class="note" x="48" y="352">and re-reads the same files. Neither number is a bill: sessions ran on a subscription.</text>
+</svg>

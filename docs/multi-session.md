@@ -55,6 +55,15 @@ compaction threshold you choose on purpose (`CLAUDE_CODE_AUTO_COMPACT_WINDOW`). 
   and updates the log. It does not ask for status by message.
 - **Go-aheads** are given on the exact commit, after a check of its own by a second method (for example:
   does the branch fast-forward, which shared files does the diff touch).
+- **Go-aheads in batches.** Anything that can be undone (commits and merges on working branches, test
+  runs, reviews, subagents within the cap) gets its go-ahead at once, without a round trip. In our 63-hour
+  run the sessions exchanged 624 messages, more than half with the reviewer, and waiting for a go-ahead
+  was the longest dead time. A worker writes to the reviewer only for a go-ahead on a commit, a change to
+  a shared file, or a new failure.
+- **Decisions for the person** go in one message with choices, never one at a time.
+- **Before the night**, whatever must run while nobody is awake goes into one script that the person
+  starts before sleeping (see [heavy-jobs.md](heavy-jobs.md)). In our run no session woke up for 6 hours
+  and 22 minutes while a release waited.
 - **To the person** it writes only for strategic decisions and for things to look at, in one message
   that collects them.
 
@@ -121,6 +130,8 @@ Rules for all the work with subagents:
 ## 9. Measure it
 
 Run `python tools/analyze_usage.py --session <id> --session <id>` on the sessions of a run. Look at:
-the share of cache reads, what started the turns, the busiest hour of idle `/goal` re-runs, and the
-scenarios. If idle re-runs or messages from other sessions dominate, tighten the rules above before you
-change the model.
+the share of cache reads and writes, what started the turns, the busiest hour of idle `/goal` re-runs, and
+the scenarios. Then `python tools/run_report.py` with the same sessions: active hours, compactions and
+where they restarted, tool errors by kind, and the gaps when nobody worked. If idle re-runs or messages
+from other sessions dominate, tighten the rules above before you change the model; if compactions or
+avoidable errors dominate, change the window and the working rules first.

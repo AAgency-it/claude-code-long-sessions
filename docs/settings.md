@@ -1,10 +1,10 @@
 # Settings: what we verified
 
-> Observed on Claude Code 2.1.302; some variables are undocumented and may change.
+> Observed on Claude Code 2.1.302, re-checked on 2.1.310; some variables are undocumented and may change.
 
 Everything below was checked on a real installation (with `/context`, with transcripts, or with an
 end-to-end run of `claude -p`). Where we did not check something, this page says nothing about it.
-`hooks/settings.example.json` contains the three environment variables we recommend.
+`hooks/settings.example.json` contains the three environment variables we use.
 
 ## Auto-compaction
 
@@ -25,6 +25,28 @@ The window, in tokens, that automatic compaction works against.
 
 The memory hook reads this variable to know when to remind the model (first reminder at window minus
 100,000 tokens, urgent at window minus 60,000, compaction expected at window minus 33,000).
+
+Re-checked on 2.1.310 from the transcripts: every compaction writes a `compact_boundary` record whose
+`compactMetadata` holds `preTokens` (the context it fired at) and `durationMs`. With a 220k window the
+median `preTokens` of 306 compactions was 187,847; with a 400k window, 367,240. The session restarted
+from about 52k tokens, and a compaction took 58 seconds on average. `tools/run_report.py` reads these
+fields for you.
+
+### Choosing the window
+
+There is no free value; see [run-63h.md](run-63h.md) for the numbers.
+
+- **Too high** (the default 1,000,000 compacts near 967k): every call re-reads a huge context. In our
+  first run, re-reading the cache was 78% of the main-session cost.
+- **Too low** (220k, compacting near 188k): the session restarts every 25 turns or so. Each restart
+  rewrites the cache, writes a summary, re-reads files, and the edits right after it fail more often. In
+  our second run, cache writes became 49% of the cost and compactions took 5.3 hours.
+- **What we use now:** 333,000 for working sessions (compaction near 300k, hook reminders at 233k and
+  273k) and 400,000 for a reviewer that mostly reads (compaction near 367k). The example settings use
+  333,000.
+
+A launcher can set a different window per kind of session with `--settings '{"env": {...}}'`, which
+overrides `settings.json`.
 
 ### "Compact instructions" in CLAUDE.md
 

@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="540" viewBox="0 0 1280 540" role="img" aria-labelledby="t d">
+  <title id="t">385 tool errors in 10,770 tool calls, 189 avoidable</title>
+  <desc id="d">Tool errors of one 63-hour run by kind. Avoidable with a rule already written: editing a file before reading it, 115; a long inline script blocked by a hook, 42; a file changed since it was read, 16; a command naming a secrets file, blocked by a hook, 16. Other: a command exited with an error, 93; browser timeouts and refused actions, 44; other, 25; stopped by permissions and rules, 18.</desc>
+  <style>
+    text { font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; }
+    .h { font-size: 24px; font-weight: 700; fill: #1F2328; }
+    .s { font-size: 16px; fill: #59636E; }
+    .lab { font-size: 16px; fill: #1F2328; }
+    .n { font-size: 16px; font-weight: 700; fill: #1F2328; }
+    .leg { font-size: 15px; fill: #59636E; }
+  </style>
+  <rect x="0.5" y="0.5" width="1279" height="539" rx="14" fill="#FCFCFA" stroke="#D0D7DE"/>
+  <text class="h" x="48" y="62">Half of the tool errors had a rule against them already</text>
+  <text class="s" x="48" y="92">385 errors in 10,770 tool calls (3.6%) in one 63-hour run. 189 of them are avoidable.</text>
+
+  <rect x="48" y="112" width="14" height="14" fill="#B45309"/>
+  <text class="leg" x="70" y="124">avoidable with a rule already written (189)</text>
+  <rect x="420" y="112" width="14" height="14" fill="#C9D1D9"/>
+  <text class="leg" x="442" y="124">other (196)</text>
+
+  <g>
+    <text class="lab" x="456" y="176" text-anchor="end">Edit before reading the file (mostly after compaction)</text>
+    <rect x="470" y="159" width="680" height="24" rx="3" fill="#B45309"/>
+    <text class="n" x="1160" y="176">115</text>
+
+    <text class="lab" x="456" y="216" text-anchor="end">Command exited with an error</text>
+    <rect x="470" y="199" width="550" height="24" rx="3" fill="#C9D1D9"/>
+    <text class="n" x="1030" y="216">93</text>
+
+    <text class="lab" x="456" y="256" text-anchor="end">Browser: timeouts and refused actions</text>
+    <rect x="470" y="239" width="260" height="24" rx="3" fill="#C9D1D9"/>
+    <text class="n" x="740" y="256">44</text>
+
+    <text class="lab" x="456" y="296" text-anchor="end">Long inline script, blocked by a hook</text>
+    <rect x="470" y="279" width="248" height="24" rx="3" fill="#B45309"/>
+    <text class="n" x="728" y="296">42</text>
+
+    <text class="lab" x="456" y="336" text-anchor="end">Other</text>
+    <rect x="470" y="319" width="148" height="24" rx="3" fill="#C9D1D9"/>
+    <text class="n" x="628" y="336">25</text>
+
+    <text class="lab" x="456" y="376" text-anchor="end">Stopped by permissions and rules</text>
+    <rect x="470" y="359" width="106" height="24" rx="3" fill="#C9D1D9"/>
+    <text class="n" x="586" y="376">18</text>
+
+    <text class="lab" x="456" y="416" text-anchor="end">File changed since it was read</text>
+    <rect x="470" y="399" width="95" height="24" rx="3" fill="#B45309"/>
+    <text class="n" x="575" y="416">16</text>
+
+    <text class="lab" x="456" y="456" text-anchor="end">Command naming a secrets file, blocked by a hook</text>
+    <rect x="470" y="439" width="95" height="24" rx="3" fill="#B45309"/>
+    <text class="n" x="575" y="456">16</text>
+  </g>
+
+  <text class="leg" x="48" y="508">The fix is a habit, not a tool: re-read a file after compaction before editing it, write long scripts to a file and run</text>
+  <text class="leg" x="48" y="528">them, and pass secrets through a wrapper. tools/run_report.py counts these on your own transcripts.</text>
+</svg>

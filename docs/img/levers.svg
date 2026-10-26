@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="520" viewBox="0 0 1280 520" role="img" aria-labelledby="t d">
+  <title id="t">Estimated hours saved per lever on a run of the same size</title>
+  <desc id="d">Estimates for a run of 57.6 active session hours. Night work in one script started before sleeping: 5 calendar hours. One queue for heavy jobs: 2.5 session hours, low confidence. Compaction near 300k: 2.2 hours, medium confidence. Go-aheads in batches for low-risk steps: 1.8 hours, medium. Avoiding the avoidable tool errors: 1.1 hours, high. No known failing tests: 0.3 hours, medium.</desc>
+  <defs>
+    <pattern id="hatch" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="10" height="10" fill="#E6F4F1"/>
+      <line x1="0" y1="0" x2="0" y2="10" stroke="#0F766E" stroke-width="3"/>
+    </pattern>
+  </defs>
+  <style>
+    text { font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; }
+    .h { font-size: 24px; font-weight: 700; fill: #1F2328; }
+    .s { font-size: 16px; fill: #59636E; }
+    .lab { font-size: 16px; fill: #1F2328; }
+    .n { font-size: 16px; font-weight: 700; fill: #1F2328; }
+    .c { font-size: 14px; fill: #59636E; }
+    .leg { font-size: 15px; fill: #59636E; }
+  </style>
+  <rect x="0.5" y="0.5" width="1279" height="519" rx="14" fill="#FCFCFA" stroke="#D0D7DE"/>
+  <text class="h" x="48" y="62">Where the next run gets faster</text>
+  <text class="s" x="48" y="92">Estimated hours saved on a run of the same size (57.6 active session hours). Shade = our confidence.</text>
+
+  <rect x="48" y="112" width="14" height="14" fill="#0F766E"/>
+  <text class="leg" x="70" y="124">high</text>
+  <rect x="120" y="112" width="14" height="14" fill="#2DA391"/>
+  <text class="leg" x="142" y="124">medium</text>
+  <rect x="212" y="112" width="14" height="14" fill="#99D5CA"/>
+  <text class="leg" x="234" y="124">low</text>
+  <rect x="290" y="112" width="14" height="14" fill="url(#hatch)" stroke="#0F766E"/>
+  <text class="leg" x="312" y="124">calendar hours, not session hours</text>
+
+  <!-- 120 px per hour, bars start at x=470 -->
+  <text class="lab" x="456" y="176" text-anchor="end">Night work in one script, started before sleeping</text>
+  <rect x="470" y="159" width="600" height="24" rx="3" fill="url(#hatch)" stroke="#0F766E"/>
+  <text class="n" x="1080" y="176">5 h</text>
+
+  <text class="lab" x="456" y="226" text-anchor="end">One queue for heavy jobs on the machine</text>
+  <rect x="470" y="209" width="300" height="24" rx="3" fill="#99D5CA"/>
+  <text class="n" x="780" y="226">2.5 h</text>
+
+  <text class="lab" x="456" y="276" text-anchor="end">Compaction near 300k instead of 188k</text>
+  <rect x="470" y="259" width="264" height="24" rx="3" fill="#2DA391"/>
+  <text class="n" x="744" y="276">2.2 h</text>
+
+  <text class="lab" x="456" y="326" text-anchor="end">Go-aheads in batches for low-risk steps</text>
+  <rect x="470" y="309" width="216" height="24" rx="3" fill="#2DA391"/>
+  <text class="n" x="696" y="326">1.8 h</text>
+
+  <text class="lab" x="456" y="376" text-anchor="end">Rules against the avoidable tool errors</text>
+  <rect x="470" y="359" width="132" height="24" rx="3" fill="#0F766E"/>
+  <text class="n" x="612" y="376">1.1 h</text>
+
+  <text class="lab" x="456" y="426" text-anchor="end">No known failing tests left in the suite</text>
+  <rect x="470" y="409" width="36" height="24" rx="3" fill="#2DA391"/>
+  <text class="n" x="516" y="426">0.3 h</text>
+
+  <text class="leg" x="48" y="478">Together about 7-8 session hours (13%) and 5 calendar hours. The estimates overlap, so they do not add up exactly.</text>
+  <text class="leg" x="48" y="500">Measured after the run: test suite split by measured time, 17 min 37 s down to 13 min 52 s (-21%).</text>
+</svg>
