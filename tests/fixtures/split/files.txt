@@ -1,0 +1,5 @@
+tests/test_alpha.py
+tests/test_beta.py
+tests/test_gamma.py
+tests/sub/test_delta.py
+tests/test_epsilon.py
