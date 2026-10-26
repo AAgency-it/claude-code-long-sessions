@@ -1,4 +1,4 @@
-<p align="center"><img src="docs/img/banner.svg" alt="claude-code-long-sessions: a context gauge with the state-file reminders at 233k and 273k tokens, compaction near 300k and the restart at about 52k" width="100%"></p>
+<p align="center"><img src="docs/img/banner.svg" alt="claude-code-long-sessions: a context gauge with the state-file reminders at 233k and 273k tokens, compaction near 300k and the restart at about 145k" width="100%"></p>
 
 # claude-code-long-sessions
 
@@ -51,7 +51,8 @@ near 967k.
 **Run 2: 63 hours, 7 sessions, 28 subagents, 9,930 turns, Claude Code 2.1.310.** Compaction near 188k for six of the
 sessions. The run shipped 12 software releases, 2 ad campaigns and 9 video clips, with no data incidents.
 
-- **327 compactions** took **5.3 hours**: 58 seconds each, restarting from about 52k tokens.
+- **327 compactions** took **5.3 hours**, 58 seconds each. The summary was about 52k tokens, but the
+  first call after it already carried about **145k**: at 188k that left only **43k** of room to work.
 - **Cache writes** became the largest cost, **49%**, because every restart rewrites the cache.
 - The reviewer, compacting near 367k, cost **5% less per turn** than a development session compacting near
   188k: fewer restarts outweighed the longer re-reads.
@@ -59,7 +60,7 @@ sessions. The run shipped 12 software releases, 2 ad campaigns and 9 video clips
 - **624 messages** between sessions, half of them to and from the reviewer.
 - No session was awake for **6 hours and 22 minutes** one night, while a release waited for a go-ahead.
 
-<p align="center"><img src="docs/img/compaction-threshold.svg" alt="Compactions by threshold: 306 at 188k measured, estimated 210 at 250k, 168 at 300k, 132 at 367k." width="100%"></p>
+<p align="center"><img src="docs/img/compaction-threshold.svg" alt="Compactions by threshold: 306 at 188k measured with 43k of room, estimated 125 at 250k, 85 at 300k, 59 at 367k." width="100%"></p>
 
 We now compact near **300k** for long working sessions (window 333k) and near 367k for the reviewer
 (window 400k). The full story, with every lever we pulled and what each one changed:
@@ -154,10 +155,16 @@ python tools/run_report.py --session <session id> --session <another id> --out r
 ```
 
 Per session: calendar and active hours (gaps under 5 minutes count as work), turns, seconds per turn,
-compactions with the context they fired at and the context they restarted from, minutes spent
-compacting, tool errors grouped by kind with the avoidable ones counted apart, messages to other sessions,
-and every gap longer than an hour. Subagents are summarised on their own. No conversation text is
-printed: only counts and the first line of each error message, with paths and numbers masked.
+compactions (the context they fired at, the size of the summary, the context of the first reply after
+it, and the room left between the two), minutes spent compacting, tool errors grouped by kind with the
+avoidable ones counted apart, messages to other sessions, and every gap longer than an hour. Subagents
+are summarised on their own. Times are in UTC. No conversation text is printed: only counts and the
+first line of each error message, with paths and numbers masked.
+
+```
+session   hours active h turns s/turn compactions compact at summary restart at room compaction min
+dev-1      50.9     17.3  2956     21         123       188k     52k       145k  43k          124.0
+```
 
 ### Parts of equal duration: `tools/split_tests.py`
 
@@ -183,7 +190,7 @@ with no timing weighs the median, and it warns you when too many files have none
   one script, an independent review running next to the tests.
 - [docs/run-63h.md](docs/run-63h.md): the 63-hour run, the levers, what we changed and what it gave.
 
-<p align="center"><img src="docs/img/levers.svg" alt="Estimated hours saved per lever: night work in one script 5 calendar hours, one queue for heavy jobs 2.5, compaction near 300k 2.2, go-aheads in batches 1.8, rules against avoidable errors 1.1, no known failing tests 0.3." width="100%"></p>
+<p align="center"><img src="docs/img/levers.svg" alt="Estimated hours saved per lever: night work in one script 5 calendar hours, compaction near 300k 3.6, one queue for heavy jobs 2.5, go-aheads in batches 1.8, rules against avoidable errors 1.1, no known failing tests 0.3." width="100%"></p>
 
 ## Limits
 

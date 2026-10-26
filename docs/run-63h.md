@@ -27,7 +27,9 @@ dry-run, and a check after the release with read-only requests.
 ### Compactions: the largest single cost
 
 Six sessions were started by a launcher that set the compaction window to 220k, so they compacted at
-about **188k** tokens and restarted from about **52k**. That is one compaction every 25 turns; the busiest
+about **188k** tokens. The summary itself was about 52k, but the first call after a compaction already
+carried about **145k**: Claude Code attaches the recently read files, the skill list and other context
+again. That left about **43k** of room, one compaction every 25 turns; the busiest
 session compacted every 24 minutes. Each one took **58 seconds** on average.
 
 The cost moved with it. In our first run (compaction near 967k) re-reading the cache was 78% of the
@@ -37,10 +39,12 @@ development session at 188k.
 
 ![Compactions by threshold](img/compaction-threshold.svg)
 
-The estimate behind the chart: the context after a compaction stays at 52k, the average context sits at
-83% of the cycle as measured, and each compaction costs 58 seconds plus about 25k tokens of re-reading.
-At 300k the six sessions would have compacted 168 times instead of 306, saving about **2.2 hours**; each
-turn re-reads more, so the token value goes up a little. We chose 300k (window 333k) for working
+The estimate behind the chart: the restart stays at about 145k, so the room is the threshold minus
+145k, and the number of compactions falls with the room (306 × 43k / room). Each one costs 58 seconds.
+At 300k the six sessions would have compacted about 85 times instead of 306, saving about **3.6 hours**
+and about 25 million tokens of cache rewrites (about 116k per restart). In exchange each turn re-reads
+a larger context, on average about 218k instead of 165k. We checked the model on the reviewer: at 367k
+it compacted once every 113 turns, against once every 24 at 188k, a ratio of 4.7; the model predicts 5.2. We chose 300k (window 333k) for working
 sessions and kept about 367k (window 400k) for the reviewer.
 
 ### Tool errors: half were avoidable
@@ -91,13 +95,13 @@ anyway.
 ## The levers, one by one
 
 Estimated savings are for a run of the same size. They overlap, so they do not add up exactly; together
-about 7-8 session hours (13%) and 5 calendar hours.
+about 9 session hours (16%) and 5 calendar hours.
 
 ![Estimated hours saved per lever](img/levers.svg)
 
 | # | Lever | What we measured | What we did | Result |
 |---|---|---|---|---|
-| 1 | Compact near 300k in working sessions | 306 compactions at 188k, one every 25 turns | Window 333k in the launcher; hook reminders at 233k and 273k | In use; est. -2.2 h |
+| 1 | Compact near 300k in working sessions | 306 compactions at 188k, one every 25 turns | Window 333k in the launcher; hook reminders at 233k and 273k | In use; est. -3.6 h |
 | 2 | Rules against the avoidable errors | 189 of 385 tool errors | Five working rules in `CLAUDE.md` | In use; est. -1.1 h |
 | 3 | One queue for heavy jobs | 5 memory collisions, a suite killed | Machine-wide queue, memory cap per job, watchdog limited to its own tree | In use; est. -2.5 h, low confidence |
 | 4 | Go-aheads in batches | 624 messages | The reviewer approves anything reversible at once; decisions for the person go in one message with choices | In use; est. -1.8 h |
