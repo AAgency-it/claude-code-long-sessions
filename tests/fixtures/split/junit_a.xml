@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testsuites>
+  <testsuite name="pytest" tests="4">
+    <testcase classname="tests.test_alpha.TestAlpha" name="test_one" file="tests/test_alpha.py" time="4.0"/>
+    <testcase classname="tests.test_alpha.TestAlpha" name="test_two" file="tests/test_alpha.py" time="2.0"/>
+    <testcase classname="tests.test_beta.TestBeta" name="test_x" time="3.0"/>
+    <testcase classname="tests.test_gamma" name="test_dup" time="1.5"/>
+  </testsuite>
+</testsuites>
